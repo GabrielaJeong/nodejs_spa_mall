@@ -12,3 +12,5 @@ const Post = require('./post');
 const Comment = require('./comment');
 
 module.exports = { connect, Post, Comment };
+
+// end of index (schema)
