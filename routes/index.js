@@ -1,14 +1,13 @@
-const mongoose = require('mongoose');
+const express = require('express')
 
-const connect = () => {
-    mongoose
-        .connect('mongodb://0.0.0.0:27017/level1')
-        .catch(err => console.error(err));
-}
+const post = require('./post');
+const comment = require('./comment');
+const users = require('./users.js');
+const auth = require('./auth.js')
 
-mongoose.connection.on("error", err => console.error("몽고DB 연결에러", err));
+const router = express.Router();
 
-const Post = require('./post');
-const Comment = require('./comment');
+router.use("",[post, comment, users, auth])
 
-module.exports = { connect, Post, Comment };
+
+module.exports = router;

@@ -1,9 +1,7 @@
-
-
 const express = require('express');
 const router = express.Router();
 
-const Post = require('../schemas/post');
+const Post = require('../models/post');
 
 // 게시글 작성
 router.post('/', async (req, res) => {

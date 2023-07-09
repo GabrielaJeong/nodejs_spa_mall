@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const Comment = require('../schemas/comment');
+const Comment = require('../models/comment');
 
 // 댓글 작성
 router.post('/:_postId/comment', async (req, res) => {
