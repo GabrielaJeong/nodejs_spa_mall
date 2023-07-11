@@ -1,29 +1,27 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { DataTypes } = require('sequelize');
+const sequelize = require('../index');
 
-const commentSchema = new Schema({
+const Comment = sequelize.define('Comment', {
     postId: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: 'Posts'
+        type: DataTypes.INTEGER,
+        allowNull: false,
     },
     user: {
-        type: String,
-        required: true,
-        unique: true
+        type: DataTypes.INTEGER,
+        allowNull: false,
     },
     password: {
-        type: String,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     content: {
-        type: String,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
+}, {
+    timestamps: true,
+    createdAt: 'createdAt',
+    updatedAt: false,
 });
 
-module.exports = mongoose.model('Comment', commentSchema);
+module.exports = Comment;

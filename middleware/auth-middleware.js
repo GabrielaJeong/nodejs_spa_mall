@@ -18,8 +18,7 @@ const jwtValidation = async (req, res, next) => {
             });
         }
 
-        // Exam 3
-        const { userId } = jwt.verify(tokenValue, 'SecretKey');
+        const { userId } = jwt.verify(tokenValue, process.env.JWT_SECRET);
         const user = await Users.findByPk(userId);
 
         res.locals.user = user;

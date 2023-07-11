@@ -1,13 +1,15 @@
-const express = require('express')
+const express = require('express');
 
-const post = require('./post');
-const comment = require('./comment');
-const users = require('./users.js');
-const auth = require('./login.js')
+const postRoutes = require('./post');
+const commentRoutes = require('./comment');
+const userRoutes = require('./users.js');
+const authRoutes = require('./auth.js');
 
 const router = express.Router();
 
-router.use("",[post, comment, users, auth])
-
+router.use('/posts', postRoutes);
+router.use('/comments', commentRoutes);
+router.use('/users', userRoutes);
+router.use('/auth', authRoutes);
 
 module.exports = router;
