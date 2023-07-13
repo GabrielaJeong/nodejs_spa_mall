@@ -1,51 +1,56 @@
-
-
-// for god sake
-
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
-module.exports = {
-  /**
-   * @param {import("sequelize").QueryInterface} queryInterface - Sequelize Query Interface
-   * @param {import("sequelize")} Sequelize - Sequelize
-   * **/
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Posts', {
-      postId: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      title: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      content: {/*  */
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.fn("now")
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.fn("now") // migration에서는 Sequelize.NOW가 먹지 않는다.
-      }
-    });
-  },
-  /**
-   * @param {import("sequelize").QueryInterface} queryInterface - Sequelize Query Interface
-   * @param {import("sequelize")} Sequelize - Sequelize
-   * **/
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Posts');
+const {
+  Model
+} = require('sequelize');
+
+/**
+ * @param {import("sequelize").Sequelize} sequelize - Sequelize
+ * @param {import("sequelize").DataTypes} DataTypes - Sequelize Column DataTypes
+ * @return {Model} - Sequelize Model
+ * **/
+module.exports = (sequelize, DataTypes) => {
+  class Posts extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+    }
   }
+  Posts.init({
+    postId: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+    },
+    title: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    content: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    password: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    }
+  }, {
+    sequelize,
+    modelName: 'Posts',
+  });
+  return Posts;
 };

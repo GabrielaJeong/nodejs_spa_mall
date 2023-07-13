@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-
+const bcrypt = require('bcryptjs'); // 비밀번호 이중보안 
 const jwt = require('jsonwebtoken');
-const User = require('../models/user'); // Sequelize User 모델
+const User = require('../models/users.js'); // Sequelize User 모델
 const jwtValidation = require('../middleware/auth-middleware');
 
 // 로그인 구현
@@ -26,7 +26,7 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(
             { userId: user.id }, // 페이로드는 사용자 ID
             process.env.JWT_SECRET, // JWT 시크릿 키
-            { expiresIn: '1h' } // 토큰 유효 시간은 1시간
+            { expiresIn: '1h' } // 토큰 유효 시간은 1시간 // 엥 왜 1시간으로 해놨지?
         );
 
 

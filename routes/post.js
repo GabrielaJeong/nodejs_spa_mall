@@ -36,6 +36,7 @@ const postSchema = Joi.object({
 //     }
 // };
 
+
 // 게시글 작성
 router.post('/', jwtValidation, async (req, res) => {
     try {
@@ -60,6 +61,7 @@ router.post('/', jwtValidation, async (req, res) => {
         res.status(400).json({ errorMessage: '게시글 작성에 실패하였습니다.' });
     }
 });
+
 
 // 게시글 조회 (전체)
 router.get('/', async (req, res) => {
