@@ -3,10 +3,12 @@ const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 
 const cookieParser = require('cookie-parser');
-const Post = require('../models/post');
+const Post = require('../models/posts');
+const router = express.Router();
+
 
 router.use(cookieParser())
-const router = express.Router();
+
 
 // Joi 스키마 정의 - 게시글 작성시 필요한 데이터 형식
 const postSchema = Joi.object({

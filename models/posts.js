@@ -1,3 +1,7 @@
+
+
+// 다시 갈아 엎어야함 ..^^ 
+
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {

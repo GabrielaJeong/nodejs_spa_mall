@@ -1,5 +1,9 @@
+
+
+// 다시 갈아 엎어야함 ..^^ 
+
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/config.json');
 
 const User = sequelize.define('User', {
     // 모델 필드 정의
