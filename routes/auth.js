@@ -33,6 +33,15 @@ const loginSchema = Joi.object({
     password: Joi.string().required()
 });
 
+/**
+ * @swagger
+ * /api/auth.js:
+ *   get:
+ *     description: Get all users
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 
 // 회원 가입
 router.post('/signup', async (req, res) => {
