@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Users } = require('../models/users');
+const { Users } = require('../models');
 
 const jwtValidation = async (req, res, next) => {
     try {
@@ -12,7 +12,7 @@ const jwtValidation = async (req, res, next) => {
 
         const [tokenType, tokenValue] = cookies.split(' ');
         if (tokenType !== 'Bearer') {
-            res.clearCookie('middleProjectCookie'); // 인증에 실패하였을 경우 Cookie를 삭제합니다.
+            res.clearCookie('middleProjectCookie'); // authorization failed > Cookie bye
             return res.status(403).send({
                 errorMessage: '전달된 쿠키에서 오류가 발생하였습니다.',
             });
@@ -25,7 +25,7 @@ const jwtValidation = async (req, res, next) => {
         next();
 
     } catch (error) {
-        res.clearCookie('middleProjectCookie'); // 인증에 실패하였을 경우 Cookie를 삭제합니다.
+        res.clearCookie('middleProjectCookie'); // cookie bye
         console.error(error);
         return res.status(403).send({
             errorMessage: '로그인이 필요한 기능입니다.',

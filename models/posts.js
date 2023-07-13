@@ -1,6 +1,6 @@
 
 
-// 다시 갈아 엎어야함 ..^^ 
+// for god sake
 
 'use strict';
 /** @type {import('sequelize-cli').Migration} */

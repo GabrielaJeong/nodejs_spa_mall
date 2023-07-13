@@ -3,40 +3,46 @@ const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 
 const cookieParser = require('cookie-parser');
-const Post = require('../models/posts');
+const { Post } = require('../models');
+const jwtValidation = require('../middleware/auth-middleware'); // 해당 라우터에만 적용될 수 있도록 미들웨어 끌어오기
 const router = express.Router();
 
+// 
 
 router.use(cookieParser())
 
 
-// Joi 스키마 정의 - 게시글 작성시 필요한 데이터 형식
+// Joi 스키마 정의 - 게시글 작성시 필수 데이터 형식 (**Required)
 const postSchema = Joi.object({
     title: Joi.string().required(),
     content: Joi.string().required(),
 });
 
 
-// JWT 미들웨어 - 쿠키에서 토큰 추출하고 검증
-const verifyToken = (req, res, next) => {
-    try {
-        // 쿠키에서 토큰 가져오기
-        const tokenValue = req.cookies.user;
-        if (!tokenValue) {
-            res.status(403).json({ errorMessage: '로그인이 필요한 기능입니다.' });
-            return;
-        }
-        const { userId } = jwt.verify(tokenValue, process.env.JWT_SECRET_KEY); // JWT 토큰 검증
-        res.locals.userId = userId; // 검증된 사용자 ID를 응답 객체에 추가
-        next();
-    } catch (error) {
-        res.status(403).json({ errorMessage: '전달된 쿠키에서 오류가 발생하였습니다.' });
-    }
-};
+// // JWT 미들웨어 - 쿠키에서 토큰 추출하고 검증하는 뭔가 다른 방법
+// const verifyToken = (req, res, next) => {
+//     try {
+//         // 쿠키에서 토큰 가져오기
+//         const tokenValue = req.cookies.user;
+//         if (!tokenValue) {
+//             res.status(403).json({ errorMessage: '로그인이 필요한 기능입니다.' });
+//             return;
+//         }
+//         const { userId } = jwt.verify(tokenValue, process.env.JWT_SECRET_KEY); // JWT 토큰 검증
+//         res.locals.userId = userId; // 검증된 사용자 ID를 응답 객체에 추가
+//         next();
+//     } catch (error) {
+//         res.status(403).json({ errorMessage: '전달된 쿠키에서 오류가 발생하였습니다.' });
+//     }
+// };
 
 // 게시글 작성
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', jwtValidation, async (req, res) => {
     try {
+
+        const { title, content } = req.body; // 클라이언트로부터 제목과 내용 받기
+        const userId = res.locals.userId; // 로컬 변수에서 사용자 ID 받기
+
         const { error } = postSchema.validate(req.body); // 입력 값 유효성 검사
         if (error) {
             // 에러 메시지 반환
@@ -46,9 +52,6 @@ router.post('/', verifyToken, async (req, res) => {
                 return res.status(412).send({ errorMessage: '게시글 내용의 형식이 일치하지 않습니다.' });
             }
         }
-
-        const { title, content } = req.body; // 클라이언트로부터 제목과 내용 받기
-        const userId = res.locals.userId; // 로컬 변수에서 사용자 ID 받기
 
         const savedPost = await Post.create({ title, content, userId }); // 게시글 저장
         res.status(201).json({ message: "게시글을 생성하였습니다." });
@@ -61,7 +64,7 @@ router.post('/', verifyToken, async (req, res) => {
 // 게시글 조회 (전체)
 router.get('/', async (req, res) => {
     try {
-        const posts = await Post.findAll({ order: [['createdAt', 'DESC']] }); // 생성일자 내림차순으로 게시글 모두 찾기
+        const posts = await Post.findAll({ order: [['createdAt', 'DESC']] }); // 생성일자 내림차순으로 게시글 모두 찾기 ** descending order
         res.json(posts);
     } catch (error) {
         console.log(error);
@@ -78,17 +81,20 @@ router.get('/:postId', async (req, res) => {
             return res.status(404).json({ errorMessage: '포스트를 찾을 수 없습니다.' });
         }
         res.json(post);
+
     } catch (error) {
         console.log(error);
         res.status(400).json({ errorMessage: '게시글 조회에 실패하였습니다.' });
     }
+
 });
 
 
 
 // 게시글 수정
-router.put('/:_postId', verifyToken, async (req, res) => {
+router.put('/:_postId', jwtValidation, async (req, res) => {
     const { title, content } = req.body;
+    const userId = res.locals.userId;
 
     // Joi를 사용하여 데이터 형식 검증
     const { error } = postUpdateSchema.validate({ title, content });
@@ -97,15 +103,14 @@ router.put('/:_postId', verifyToken, async (req, res) => {
         return res.status(412).json({ errorMessage });
     }
 
-    const userId = res.locals.userId;
 
     try {
         const post = await Post.findOne({ where: { id: req.params._postId } });
-        if (!post) { // 포스트아이디에 해당하는 게시글이 없음
+        if (!post) { // 포스트아이디에 해당하는 게시글 X
             return res.status(404).json({ errorMessage: '게시글 조회에 실패하였습니다.' });
         }
 
-        if (post.userId !== userId) { // 현재 사용자가 게시물의 소유자가 아닌 경우
+        if (post.userId !== userId) { // 현재 사용자가 게시물의 typer가 아닌경우
             return res.status(403).json({ errorMessage: '게시글 수정의 권한이 존재하지 않습니다.' });
         }
 
@@ -119,7 +124,7 @@ router.put('/:_postId', verifyToken, async (req, res) => {
 
 
 // 게시글 삭제
-router.delete('/:_postId', verifyToken, async (req, res) => {
+router.delete('/:_postId', jwtValidation, async (req, res) => {
     const { password } = req.body;
     const userId = res.locals.userId;
     try {

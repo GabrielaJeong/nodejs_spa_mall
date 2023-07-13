@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs'); // 비밀번호 이중보안 
 const jwt = require('jsonwebtoken');
 const Users = require('../models/user.js');
-const jwtValidation = require('../middleware/auth-middleware');
-const Joi = require('joi');
+const jwtValidation = require('../middleware/auth-middleware'); // 해당 라우터에만 적용될 수 있도록 미들웨어 끌어오기
+const Joi = require('joi'); // 쪼이이이
 
 
 const signupSchema = Joi.object({
