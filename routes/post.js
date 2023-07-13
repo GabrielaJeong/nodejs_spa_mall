@@ -1,6 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
 
+const { Op } = require("sequelize");
 const jwt = require('jsonwebtoken');
 
 const cookieParser = require('cookie-parser');

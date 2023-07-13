@@ -3,6 +3,23 @@ const router = express.Router();
 const jwtValidation = require('../middleware/auth-middleware');
 const Post = require('../models/post');
 const Comment = require('../models/comment');
+const { Op } = require("sequelize");
+
+// Authorization middleware
+const authMiddleware = async (req, res, next) => {
+    try {
+        const { userId } = req.decoded;
+        const comment = await Comment.findByPk(req.params._commentId);
+        if (!comment || comment.userId !== userId) {
+            return res.status(403).json({ errorMessage: '권한이 없습니다.' });
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({ errorMessage: '권한 확인에 실패했습니다.' });
+    }
+};
+
 
 // 댓글 작성
 router.post('/:_postId/comment', jwtValidation, async (req, res) => {
@@ -54,7 +71,7 @@ router.get('/:_postId/comment', async (req, res) => {
 
 
 // 댓글 수정
-router.put('/:_postId/comment/:_commentId', async (req, res) => {
+router.put('/:_postId/comment/:_commentId', jwtValidation, async (req, res) => {
     const { password, content, ...rest } = req.body;
     const postId = req.params._postId;
     const commentId = req.params._commentId;
@@ -74,13 +91,13 @@ router.put('/:_postId/comment/:_commentId', async (req, res) => {
 
     try {
         // 게시글이 존재하는지 확인
-        const postExists = await Post.findById(postId);
+        const postExists = await Post.findByPk(postId);
         if (!postExists) {
             return res.status(404).json({ errorMessage: "게시글이 존재하지 않습니다." });
         }
 
         // 댓글이 존재하는지 확인
-        const comment = await Comment.findById(commentId);
+        const comment = await Comment.findByPk(commentId);
         if (!comment) {
             return res.status(404).json({ errorMessage: "댓글이 존재하지 않습니다." });
         }
@@ -91,15 +108,8 @@ router.put('/:_postId/comment/:_commentId', async (req, res) => {
         }
 
         // 댓글 수정
-        comment.content = content;
-        Object.entries(rest).forEach(([key, value]) => {
-            comment[key] = value;
-        });
+        await comment.update({ content, ...rest });
 
-        const updatedComment = await comment.save();
-        if (!updatedComment) {
-            return res.status(400).json({ errorMessage: "댓글 수정이 정상적으로 처리되지 않았습니다." });
-        }
         res.status(201).json({ message: "댓글을 수정하였습니다." });
     } catch (error) {
         console.error(error);
@@ -108,30 +118,33 @@ router.put('/:_postId/comment/:_commentId', async (req, res) => {
 });
 
 
+
 // 댓글 삭제
 router.delete('/:_postId/comment/:_commentId', jwtValidation, async (req, res) => {
     try {
-        const post = await Post.findById(req.params._postId);
+        const post = await Post.findOne({ where: { id: req.params._postId } });
         if (!post) {
             return res.status(404).json({ errorMessage: '게시글이 존재하지 않습니다.' });
         }
-        
-        const comment = await Comment.findById(req.params._commentId);
+
+        const comment = await Comment.findOne({ where: { id: req.params._commentId } });
         if (!comment) {
             return res.status(404).json({ errorMessage: '댓글이 존재하지 않습니다.' });
         }
 
-        if (String(comment.user) !== String(res.locals.user._id)) {
+        if (String(comment.userId) !== String(res.locals.user._id)) {
             return res.status(403).json({ errorMessage: '댓글의 삭제 권한이 존재하지 않습니다.' });
         }
 
-        await comment.remove();
+        await comment.destroy();
         res.status(200).json({ message: '댓글을 삭제하였습니다.' });
-        
+
     } catch (error) {
         console.error(error);
         res.status(400).json({ errorMessage: '댓글 삭제에 실패하였습니다.' });
     }
 });
+
+
 
 module.exports = router;

@@ -6,6 +6,7 @@ const Users = require('../models/users');
 const jwtValidation = require('../middleware/auth-middleware');
 const Joi = require('joi');
 
+
 const signupSchema = Joi.object({
     nickname: Joi.string()
         .alphanum()

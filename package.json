@@ -9,6 +9,7 @@
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.3.1",
+    "mysql2": "^3.5.1",
     "sequelize": "^6.32.1"
   },
   "name": "level1",
@@ -20,5 +21,9 @@
   "author": "",
   "license": "ISC",
   "keywords": [],
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "sequelize-cli": "^6.6.1"
+  }
 }
